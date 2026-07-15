@@ -53,16 +53,117 @@ early step. Format support: **TOML built in**, other formats pluggable via
   v0.2 = per-field merge strategies, `--dump-config`, discovery + `--isolated`, pluggable
   formats; v0.3 = subcommands.
 
-## Conventions
+## Rust library development practices
 
-- Edition 2024; MSRV **1.85** — do not use features newer than the pinned MSRV without
-  bumping `rust-version` in `Cargo.toml` and the README.
-- Before finishing a change, run: `cargo fmt --all`, `cargo clippy --all-targets -- -D warnings`,
-  and `cargo test`. CI enforces all three (see `.github/workflows/ci.yml`).
-- Public API needs rustdoc. Keep doc-comments on config-struct fields meaningful — they are
-  the single source of truth that flows into clap help, so treat them as user-facing.
-- The flagship test is a **precedence matrix**: `(flag | env | file | none)` × field types.
-  Extend it rather than adding ad-hoc one-off tests when you touch precedence.
+These are standing expectations for every change. Treat them as part of "done," not optional
+polish. They exist because this crate's whole value proposition is correctness and quality —
+a sloppy library loses to the incumbents regardless of features.
+
+### The per-change loop (run in this order, every time)
+
+1. `cargo build` (or `cargo check`) — must compile clean.
+2. `cargo fmt --all` — format. CI runs `--check` and fails on any diff, so format locally.
+3. `cargo clippy --all-targets --all-features -- -D warnings` — **run after every build**.
+   Warnings are errors here; fix them, don't `#[allow]` them away without a written reason.
+4. `cargo test --all-features` — unit, integration, **and doctests**. Doctests count.
+5. `cargo doc --no-deps --all-features` with `RUSTDOCFLAGS="-D warnings"` — no broken
+   intra-doc links, no missing docs.
+
+Do not report work as complete until steps 1–5 pass. If you cannot run them, say so
+explicitly rather than implying they passed.
+
+### Testing & coverage (always generate tests; aim for full coverage)
+
+- **Every change ships with tests.** New public behavior → new tests. Bug fix → a regression
+  test that fails before the fix and passes after. No behavior change lands untested.
+- **Coverage is measured, not assumed.** Use `cargo llvm-cov` (`cargo llvm-cov --all-features
+  --workspace`, or `--html` for a report). Target **≥ 90% line coverage** on the runtime crate;
+  the precedence/merge engine should be effectively 100%. If coverage drops, add tests before
+  moving on. Note honestly what is uncovered and why.
+- **The precedence matrix is the flagship test:** `(flag | env | file | none)` × field types
+  (`u16`, `bool`, `String`, `Vec<T>`, `Option<T>`, enums). Extend this matrix rather than
+  adding scattered one-off tests when you touch precedence.
+- **Proc-macro crates need compile-fail tests.** Use [`trybuild`](https://docs.rs/trybuild) to
+  assert that misuse (bad `#[layered(...)]` attributes, unsupported field types) produces a
+  *good* error message, and use `macrotest`/`cargo expand` to sanity-check generated code.
+  A derive macro's error messages are part of its public UX — test them.
+- **Property-based tests** (`proptest`) are well-suited to the merge engine: for any generated
+  stack of layers, the highest-priority set value must win. Prefer this over hand-enumerating.
+- **Integration tests** live in `tests/` and must exercise the crate as an external user would
+  (`use clap_layers::...`), not reach into private internals.
+- Test against **MSRV (1.85)** as well as stable — CI already does; keep it green.
+
+### API design (follow the Rust API Guidelines)
+
+- Conform to the [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/) checklist.
+  Highlights that bite hardest:
+  - Public error types implement `std::error::Error` + `Display` + `Debug`. **Do not expose
+    `anyhow`/`Box<dyn Error>` in the library's public API** — that's for the examples/binaries.
+    Prefer a concrete error enum (hand-rolled or `thiserror`).
+  - Mark growable public enums/structs `#[non_exhaustive]` (especially the error type and any
+    config-source enum) so adding variants isn't a breaking change.
+  - Derive the common traits where sensible (`Debug`, `Clone`, `PartialEq`, `Eq`) —
+    C-COMMON-TRAITS. `Debug` on all public types is effectively mandatory.
+  - Keep the public surface **minimal**: `pub(crate)` by default, `pub` only when intended.
+    Everything `pub` is a maintenance commitment under SemVer.
+  - Re-export any third-party types that appear in your public signatures so users don't need
+    to add a matching dependency.
+- Add `#![forbid(unsafe_code)]` unless a concrete, documented need for `unsafe` arises.
+- **No `panic!`/`unwrap`/`expect` in library code paths** — return `Result`. Panics are for
+  genuinely-unreachable invariants only, and should say why.
+- Feature flags must be **additive** (enabling one never breaks another); document each in the
+  crate docs. Format support (TOML/JSON/…) is the main axis — keep it clean, not a maze.
+
+### Documentation (keep README, rustdoc, and CHANGELOG in sync)
+
+- `#![deny(missing_docs)]` at the crate root — every public item is documented, with at least
+  one runnable example on the crate root and on the primary entry points.
+- **Document all user-facing changes in `README.md`.** If a change alters usage — a new
+  attribute, a renamed method, a precedence tweak — the README example/table must reflect it in
+  the same change. A README that lies about the API is worse than none.
+- **Maintain `CHANGELOG.md` for every released change** ([Keep a Changelog] format): add an
+  entry under `## [Unreleased]` as part of the change, then move it under a versioned heading at
+  release time. Internal-only refactors can be omitted; anything a user could observe cannot.
+- Configure docs.rs to build all features by adding to `Cargo.toml`:
+  ```toml
+  [package.metadata.docs.rs]
+  all-features = true
+  rustdoc-args = ["--cfg", "docsrs"]
+  ```
+  and gate feature-flag docs with `#[cfg_attr(docsrs, doc(cfg(...)))]`.
+- Keep the README and the crate-root docs from drifting — consider `#![doc = include_str!("../README.md")]`
+  (with doctests on the README) so there is a single source of truth.
+
+### Versioning & releasing (SemVer discipline)
+
+- Follow [SemVer](https://semver.org/) strictly. Pre-1.0, a breaking change bumps the **minor**
+  (0.x.0); after 1.0, it bumps the major. When unsure whether a change is breaking, assume it is.
+- Run [`cargo-semver-checks`](https://github.com/obi1kenobi/cargo-semver-checks) before any
+  release to catch accidental API breaks; wire it into CI once there's a published baseline.
+- Before publishing: `cargo publish --dry-run` and inspect `cargo package --list` to confirm no
+  stray files (the design brief in `docs/` must never ship — it's excluded).
+- Tag releases `vX.Y.Z` matching `Cargo.toml`. Consider `cargo-release` or `release-plz` to
+  automate the version-bump / changelog / tag / publish flow.
+
+### Dependency & supply-chain hygiene
+
+- **Keep dependencies minimal** — this is a stated design goal, and each dep is compile time +
+  audit surface + SemVer risk. Justify every addition.
+- Run [`cargo-audit`](https://crates.io/crates/cargo-audit) (RustSec advisories) and
+  [`cargo-deny`](https://embarkstudios.github.io/cargo-deny/) (licenses, bans, duplicates,
+  advisories) regularly; add them to CI. Dependabot is already configured.
+- Commit `Cargo.lock` (done) so CI and coverage are reproducible.
+- State an MSRV policy and honor it: MSRV is **1.85**; raising it is a minor-version, changelog-
+  worthy event, and requires updating `rust-version`, the README, and the CI matrix together.
+
+### Consider adding as the code grows
+
+- A `[lints]` table in `Cargo.toml` (or `#![warn(...)]` at the crate root) to centralize
+  `missing_docs`, `unsafe_code`, and selected `clippy::pedantic`/`clippy::cargo` lints.
+- CI jobs for coverage upload, `cargo-deny`, and (post-baseline) `cargo-semver-checks`.
+- A `SECURITY.md` and a tag-triggered publish workflow once the crate is on crates.io.
+
+[Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 
 ## Housekeeping
 
