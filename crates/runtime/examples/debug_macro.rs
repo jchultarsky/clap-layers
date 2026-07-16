@@ -19,7 +19,7 @@ fn main() {
     // cargo install cargo-expand
     // cargo expand --example debug_macro
     // ```
-    
+
     let cfg = Config::layered().expect("Failed to load config");
     println!("Config loaded: {:?}", cfg);
 }

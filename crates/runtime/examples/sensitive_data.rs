@@ -37,7 +37,7 @@ fn main() {
 
     println!("Configuration:");
     println!("  DB User: {}", cfg.db_user);
-    
+
     // Only show first few characters for security
     let display_pwd = &cfg.db_password.chars().take(3).collect::<String>();
     println!("  DB Password: ***{}***", display_pwd);
