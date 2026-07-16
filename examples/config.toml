@@ -1,0 +1,6 @@
+# Example configuration file for clap-layers
+# This file demonstrates the TOML format supported by clap_layers
+
+port = 8080
+verbose = 1
+debug = false

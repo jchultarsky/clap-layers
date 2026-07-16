@@ -1,16 +1,32 @@
-[package]
-name = "clap-layers"
+[workspace]
+resolver = "2"
+members = ["crates/proc-macro", "crates/runtime", "tests"]
+default-members = ["crates/runtime"]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
-description = "Correct layered configuration for clap: explicit CLI flag > env var > config file > default, from a single struct."
 license = "MIT"
 repository = "https://github.com/jchultarsky101/clap-layers"
 homepage = "https://github.com/jchultarsky101/clap-layers"
 documentation = "https://docs.rs/clap-layers"
-readme = "README.md"
-keywords = ["clap", "config", "cli", "configuration", "layered"]
-categories = ["command-line-interface", "config"]
-exclude = ["/docs", "/.github"]
 
-[dependencies]
+authors = ["Julian Chultarsky <jchultarsky@gmail.com>"]
+
+[workspace.dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] }
+toml = "0.8"
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+debug = false

@@ -1,0 +1,29 @@
+[package]
+name = "clap-layers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+
+authors = ["Julian Chultarsky <jchultarsky@gmail.com>"]
+
+description = "Correct layered configuration for clap: explicit CLI flag > env var > config file > default, from a single struct."
+
+keywords = ["clap", "config", "cli", "configuration", "layered"]
+categories = ["command-line-interface", "config"]
+
+[lib]
+name = "clap_layers"
+path = "src/lib.rs"
+
+[dependencies]
+# Local proc-macro crate
+clap-layers-proc = { path = "../proc-macro", version = "0.1.0" }
+thiserror.workspace = true
+clap = { workspace = true, features = ["derive"] }
+
+[dev-dependencies]
+trybuild = "1"
