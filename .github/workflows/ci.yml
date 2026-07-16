@@ -28,8 +28,14 @@ jobs:
       - name: Test
         # UI tests pin rustc's rendering of macro diagnostics, which shifts
         # between toolchains; assert them on stable only.
+        #
+        # Emit an explicit true/false. `${{ cond && '' || '1' }}` reads like a
+        # ternary but is not: '' is falsy in GitHub expressions, so the && arm
+        # collapses and the whole thing yields '1' on *every* job — silently
+        # skipping these tests everywhere, which is precisely what they exist to
+        # prevent.
         env:
-          CLAP_LAYERS_SKIP_UI_TESTS: ${{ matrix.rust == 'stable' && '' || '1' }}
+          CLAP_LAYERS_SKIP_UI_TESTS: ${{ matrix.rust != 'stable' }}
         run: cargo test --workspace --all-features
 
   lint:

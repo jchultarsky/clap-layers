@@ -15,10 +15,13 @@
 
 #[test]
 fn ui() {
-    // Deliberately value-based, not `is_some()`: CI sets this variable to an
-    // empty string on the jobs that *should* run the tests, and an empty-but-set
-    // variable must not silently skip them.
-    let skip = std::env::var("CLAP_LAYERS_SKIP_UI_TESTS").is_ok_and(|v| !v.is_empty() && v != "0");
+    // Allowlist, not denylist: only an affirmative value skips. CI sets this to
+    // "false" on the jobs that must run these tests, so anything unrecognised —
+    // "false", "", a typo — has to mean *run*. A skip condition that fails open
+    // silently disables the suite, which is the failure this suite exists to
+    // catch.
+    let skip = std::env::var("CLAP_LAYERS_SKIP_UI_TESTS")
+        .is_ok_and(|v| matches!(v.trim().to_ascii_lowercase().as_str(), "1" | "true" | "yes"));
     if skip {
         eprintln!("skipping UI tests: CLAP_LAYERS_SKIP_UI_TESTS is set");
         return;
