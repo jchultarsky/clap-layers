@@ -150,7 +150,8 @@ explicitly rather than implying they passed.
 - **Keep dependencies minimal** — this is a stated design goal, and each dep is compile time +
   audit surface + SemVer risk. Justify every addition.
 - [`cargo-deny`](https://embarkstudios.github.io/cargo-deny/) runs in CI on every push and
-  weekly on a schedule (an advisory can land against an unchanged `Cargo.lock`). It covers
+  weekly on a schedule (an advisory can land against an unchanged `Cargo.lock`; so can a rustc
+  release that changes the diagnostics the UI tests pin). It covers
   RustSec advisories, licences, duplicates and sources; `deny.toml` holds the policy and has
   no exceptions — keep it that way. It deliberately replaces `cargo-audit`, which reads the
   same RustSec database and would be a second configuration to keep honest for no extra
