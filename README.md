@@ -1,9 +1,14 @@
 # clap-layers
 
+[![CI](https://github.com/jchultarsky101/clap-layers/actions/workflows/ci.yml/badge.svg)](https://github.com/jchultarsky101/clap-layers/actions/workflows/ci.yml)
+[![MSRV](https://img.shields.io/badge/MSRV-1.85-blue.svg)](#msrv)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+<!-- Restore at first release; until the crate is on crates.io these render as
+     "crates.io: not found" and "docs: not found".
 [![Crates.io](https://img.shields.io/crates/v/clap-layers.svg)](https://crates.io/crates/clap-layers)
 [![Docs.rs](https://docs.rs/clap-layers/badge.svg)](https://docs.rs/clap-layers)
-[![CI](https://github.com/jchultarsky101/clap-layers/actions/workflows/ci.yml/badge.svg)](https://github.com/jchultarsky101/clap-layers/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+-->
 
 > ⚠️ **Pre-release.** The `v0.1` correctness bar below is implemented and covered by the
 > precedence-matrix test suite, but the crate is not yet published and the API may still

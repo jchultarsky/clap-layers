@@ -18,3 +18,6 @@
 
 # Raw coverage profiles, written next to the crate by instrumented binaries
 *.profraw
+
+# Local assistant memory: working state, not project documentation
+/memory/
