@@ -188,3 +188,50 @@ pub trait Layered: Sized {
     /// ```
     fn layered() -> Result<Self, LayeredError>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_source_layer_display() {
+        assert_eq!(
+            SourceLayer::CliFlag("port".to_string()).to_string(),
+            "command-line flag port"
+        );
+        assert_eq!(
+            SourceLayer::EnvVar("PORT".to_string()).to_string(),
+            "environment variable PORT"
+        );
+        assert_eq!(
+            SourceLayer::ConfigFile("config.toml".to_string()).to_string(),
+            "configuration file config.toml"
+        );
+        assert_eq!(SourceLayer::Default.to_string(), "defaults");
+    }
+
+    #[test]
+    fn test_layered_error_variants() {
+        let io_err = LayeredError::Io {
+            path: "config.toml".to_string(),
+            source: std::io::Error::new(std::io::ErrorKind::NotFound, "file not found"),
+        };
+        assert!(io_err.to_string().contains("config.toml"));
+
+        let toml_err = LayeredError::TomlParse {
+            message: "invalid value".to_string(),
+            position: "line 1, column 5".to_string(),
+        };
+        assert!(toml_err.to_string().contains("TOML parse error"));
+
+        let env_err = LayeredError::Env {
+            var: "PORT".to_string(),
+            field: "port".to_string(),
+            source: Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "invalid digit",
+            )),
+        };
+        assert!(env_err.to_string().contains("invalid environment variable"));
+    }
+}
