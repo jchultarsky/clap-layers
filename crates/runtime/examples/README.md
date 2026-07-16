@@ -1,41 +1,43 @@
-# clap-layers Examples
+# clap-layers examples
 
-This directory contains example programs demonstrating different ways to use `clap_layers`.
+Run these from the **workspace root**, which is the working directory `cargo run`
+uses — the `file = "examples/config.toml"` paths in the examples resolve from there.
 
-## Example Index
-
-| Example | Description |
-|---------|-------------|
-| [`cli_only.rs`](cli_only.rs) | Usage with only CLI arguments and defaults |
-| [`environment_vars.rs`](environment_vars.rs) | Using environment variables for configuration |
-| [`config_file.rs`](config_file.rs) | Loading configuration from TOML files |
-| [`precedence_demo.rs`](precedence_demo.rs) | Demonstrating precedence order: CLI > env > file > default |
-| [`sensitive_data.rs`](sensitive_data.rs) | Handling sensitive fields (passwords) that only come from CLI |
-| [`dynamic_values.rs`](dynamic_values.rs) | Using `no_cli` for auto-generated values |
-| [`complete_example.rs`](complete_example.rs) | Comprehensive example combining all features |
-
-## Running Examples
+| Example | What it shows |
+|---------|---------------|
+| [`cli_only.rs`](cli_only.rs) | The simplest case: flags and defaults, no other layers |
+| [`environment_vars.rs`](environment_vars.rs) | The environment layer and how variables are named |
+| [`config_file.rs`](config_file.rs) | The TOML file layer, and that a missing file is not an error |
+| [`precedence_demo.rs`](precedence_demo.rs) | All four layers, including a flag that equals the default |
+| [`sensitive_data.rs`](sensitive_data.rs) | `no_env` / `no_file`, keeping a password off every other layer |
+| [`dynamic_values.rs`](dynamic_values.rs) | `no_cli`, for fields that must never be a flag |
+| [`complete_example.rs`](complete_example.rs) | Everything together, with error reporting |
 
 ```bash
-# List all examples
-cargo run --example <name>
-
-# With environment variables (field names are lowercase)
-MYAPP_port=8080 cargo run --example environment_vars
-
-# With a config file (if required)
 cargo run --example precedence_demo
+MYAPP_PORT=8080 cargo run --example environment_vars
 ```
 
-**Note:** Environment variable names use the format `{PREFIX}_{FIELD_NAME}` where `FIELD_NAME` is **lowercase**. For example, with `env_prefix = "MYAPP"` and field `port`, the env var is `MYAPP_port`.
+## Environment variables
 
-## Precedence Order
+Variables are `PREFIX_FIELD`, **uppercased**: with `env_prefix = "MYAPP"`, the field
+`port` reads `MYAPP_PORT` and `db_password` reads `MYAPP_DB_PASSWORD`.
 
-Configuration sources are applied in this order (highest to lowest priority):
+The environment layer is only active when `env_prefix` is set — without a prefix a
+field named `path` would read the ambient `PATH`.
 
-1. **CLI flags** - `--port 8080`
-2. **Environment variables** - `MYAPP_port=8080` (field name lowercase)
-3. **Config file** - `config.toml`
-4. **Defaults** - `default_value_t = 3000`
+Values are parsed as TOML values, so `MYAPP_TAGS='["a","b"]'` fills a `Vec<String>`.
+Anything that is not valid TOML is taken as a plain string, so `MYAPP_HOST=localhost`
+needs no quoting.
 
-This means CLI always wins, followed by env vars (with lowercase field names), then config file, with built-in defaults as the fallback.
+## Precedence
+
+Highest wins:
+
+1. **An explicitly typed CLI flag** — `--port 8080`
+2. **An environment variable** — `MYAPP_PORT=8080`
+3. **The config file** — `port = 8080`
+4. **The built-in default** — `default_value_t = 3000`
+
+A flag you typed beats the lower layers *even when the value you typed is the same as
+the default*. `precedence_demo` demonstrates exactly that case.

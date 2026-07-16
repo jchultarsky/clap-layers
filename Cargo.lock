@@ -109,6 +109,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap-layers-e2e"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap-layers",
+]
+
+[[package]]
 name = "clap-layers-proc"
 version = "0.1.0"
 dependencies = [
