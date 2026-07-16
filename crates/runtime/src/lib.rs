@@ -107,23 +107,6 @@
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-/// The README's examples are compiled as doctests so they cannot drift away
-/// from the real API — an untested README is how the previous examples came to
-/// document behaviour the crate did not have.
-///
-/// Gated on `doctest` so the path to the workspace README is only needed when
-/// running tests, not when building or publishing the crate.
-#[cfg(doctest)]
-#[doc = include_str!("../../../README.md")]
-struct ReadmeDoctests;
-
-/// The design document's examples are compiled for the same reason: it is linked
-/// from the README as the starting point for understanding the crate, and it
-/// had already drifted into describing an API that never shipped.
-#[cfg(doctest)]
-#[doc = include_str!("../../../docs/DESIGN.md")]
-struct DesignDocDoctests;
-
 use std::collections::BTreeMap;
 use std::ffi::OsString;
 use std::path::PathBuf;

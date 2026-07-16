@@ -1,20 +1,22 @@
 # clap-layers
 
+[![Crates.io](https://img.shields.io/crates/v/clap-layers.svg)](https://crates.io/crates/clap-layers)
+[![Docs.rs](https://docs.rs/clap-layers/badge.svg)](https://docs.rs/clap-layers)
 [![CI](https://github.com/jchultarsky101/clap-layers/actions/workflows/ci.yml/badge.svg)](https://github.com/jchultarsky101/clap-layers/actions/workflows/ci.yml)
 [![MSRV](https://img.shields.io/badge/MSRV-1.85-blue.svg)](#msrv)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<!-- Restore at first release; until the crate is on crates.io these render as
-     "crates.io: not found" and "docs: not found".
-[![Crates.io](https://img.shields.io/crates/v/clap-layers.svg)](https://crates.io/crates/clap-layers)
-[![Docs.rs](https://docs.rs/clap-layers/badge.svg)](https://docs.rs/clap-layers)
--->
-
-> ⚠️ **Pre-release.** The `v0.1` correctness bar below is implemented and covered by the
-> precedence-matrix test suite, but the crate is not yet published and the API may still
-> change. Expect breaking changes before `1.0`.
+> **Early release.** The correctness bar below is implemented and covered by the test suite.
+> The API is not yet settled: until `1.0`, a breaking change bumps the minor version, so pin
+> `0.1` if that matters to you.
 
 One derive macro that gives any [clap](https://crates.io/crates/clap) application **correct** layered configuration — an explicit **CLI flag** beats an **env var** beats a **config file** beats a **built-in default** — from a single struct definition. `--help` still shows real defaults, and errors name the source file and line.
+
+## Install
+
+```sh
+cargo add clap-layers clap --features clap/derive
+```
 
 ## Why
 

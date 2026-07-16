@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Nothing is published yet, so the entries below describe `v0.1` as a whole rather
-than deltas against a released version.
+## [0.1.0] - 2026-07-16
+
+The first release. The entries below describe `v0.1` as a whole rather than
+deltas against an earlier version.
 
 ### Added
 
@@ -135,4 +137,5 @@ Against the unreleased scaffolding that preceded it:
 - Sequences from the environment must be TOML arrays (`MYAPP_TAGS='["a","b"]'`);
   clap's `value_delimiter` applies only to the command line.
 
-[Unreleased]: https://github.com/jchultarsky101/clap-layers/commits/main
+[Unreleased]: https://github.com/jchultarsky101/clap-layers/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/jchultarsky101/clap-layers/releases/tag/v0.1.0
