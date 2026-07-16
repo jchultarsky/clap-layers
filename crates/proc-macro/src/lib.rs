@@ -24,7 +24,7 @@
 //!
 //! ## Type Requirements
 //!
-//! All fields must implement [`FromStr`] so they can be parsed from environment
+//! All fields must implement `FromStr` so they can be parsed from environment
 //! variable strings and config file values. Common supported types include:
 //!
 //! - Integer types: `u8`, `u16`, `u32`, `u64`, `usize`, `i8`, `i16`, `i32`, `i64`
@@ -32,7 +32,7 @@
 //! - Text: `String` (parsing always succeeds for any valid UTF-8)
 //! - Booleans: `bool` ("true"/"false", "yes"/"no", "1"/"0")
 //!
-//! If a field doesn't implement FromStr, you'll get a compile-time error when
+//! If a field doesn't implement `FromStr`, you'll get a compile-time error when
 //! the macro tries to parse env var values.
 
 use proc_macro::TokenStream;

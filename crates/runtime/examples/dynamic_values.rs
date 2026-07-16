@@ -19,7 +19,7 @@ struct Config {
 
 fn main() {
     let cfg = Config::parse_from(std::env::args());
-    
+
     println!("Configuration:");
     println!("  Environment: {}", cfg.environment);
     println!("  Instance ID: {}", cfg.instance_id);

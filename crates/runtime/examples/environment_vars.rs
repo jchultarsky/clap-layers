@@ -31,7 +31,7 @@ struct Config {
 
 fn main() {
     let cfg = Config::layered().expect("Failed to load config");
-    
+
     println!("Server configuration:");
     println!("  Host: {}", cfg.host);
     println!("  Port: {}", cfg.port);

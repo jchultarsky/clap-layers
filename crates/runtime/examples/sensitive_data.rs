@@ -14,7 +14,7 @@ struct Config {
     db_user: String,
 
     /// Database password (CLI only for security)
-    /// 
+    ///
     /// Note: To use `layered()` with this field, it must have a type that implements
     /// FromStr. Option<String> works because clap handles it specially during parsing.
     #[layered(no_env, no_file)]
@@ -23,11 +23,14 @@ struct Config {
 
 fn main() {
     let cfg = Config::parse_from(std::env::args());
-    
+
     println!("Configuration:");
     println!("  DB User: {}", cfg.db_user);
     if !cfg.db_password.is_empty() {
-        println!("  DB Password: ***{}***", cfg.db_password.chars().take(3).collect::<String>());
+        println!(
+            "  DB Password: ***{}***",
+            cfg.db_password.chars().take(3).collect::<String>()
+        );
     } else {
         println!("  DB Password: (not provided)");
     }

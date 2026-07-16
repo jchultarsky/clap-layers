@@ -69,7 +69,7 @@ fn main() {
     let cfg = Config::layered().expect("Failed to load configuration");
 
     println!("=== Application Configuration ===\n");
-    
+
     println!("Database: {}", cfg.database_url);
     println!("Redis:    {}", cfg.redis_url);
     println!("Cache TTL: {}s ({}m)", cfg.cache_ttl, cfg.cache_ttl / 60);

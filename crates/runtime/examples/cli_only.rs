@@ -22,7 +22,7 @@ fn main() {
     println!("Configuration loaded:");
     println!("  Port: {}", cfg.port);
     println!("  Verbose: {}", cfg.verbose);
-    
+
     // Use the configuration...
     if cfg.verbose {
         println!("Running in verbose mode on port {}", cfg.port);
