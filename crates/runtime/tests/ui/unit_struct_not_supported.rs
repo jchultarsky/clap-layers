@@ -1,7 +1,6 @@
-use clap::Parser;
 use clap_layers::Layered;
 
-#[derive(Parser, Layered)]
+#[derive(Layered)]
 struct Config;
 
 fn main() {}

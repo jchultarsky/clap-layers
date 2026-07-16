@@ -1,0 +1,16 @@
+error: unknown `layered` option `no_envv`
+         help: supported options on a field are: `no_cli`, `no_file`, `no_env`
+ --> tests/ui/multiple_field_errors.rs:9:15
+  |
+9 |     #[layered(no_envv)]
+  |               ^^^^^^^
+
+error: `#[layered(no_cli)]` also requires `#[arg(skip)]` on the same field
+         help: without `#[arg(skip)]` clap still defines a flag for this field, so it would not actually be hidden from the command line
+         note: `#[arg(skip)]` requires the field type to implement `Default`
+  --> tests/ui/multiple_field_errors.rs:13:5
+   |
+13 | /     #[layered(no_cli)]
+14 | |     #[arg(long, default_value_t = 2)]
+15 | |     second: u16,
+   | |_______________^

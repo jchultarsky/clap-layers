@@ -1,0 +1,6 @@
+error: `no_env` does not take a value
+         help: write `#[layered(no_env)]`
+ --> tests/ui/marker_takes_no_value.rs:7:15
+  |
+7 |     #[layered(no_env = "true")]
+  |               ^^^^^^^^^^^^^^^

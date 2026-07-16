@@ -1,0 +1,9 @@
+error: `#[layered(no_cli)]` also requires `#[arg(skip)]` on the same field
+         help: without `#[arg(skip)]` clap still defines a flag for this field, so it would not actually be hidden from the command line
+         note: `#[arg(skip)]` requires the field type to implement `Default`
+ --> tests/ui/no_cli_without_arg_skip.rs:7:5
+  |
+7 | /     #[layered(no_cli)]
+8 | |     #[arg(long, default_value_t = String::from("x"))]
+9 | |     instance_id: String,
+  | |_______________________^

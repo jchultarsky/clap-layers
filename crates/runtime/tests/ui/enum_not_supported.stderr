@@ -1,0 +1,6 @@
+error: `Layered` does not support enums
+         help: derive `Layered` on your top-level `Parser` struct. Subcommand enums are not supported yet
+ --> tests/ui/enum_not_supported.rs:4:6
+  |
+4 | enum Config {
+  |      ^^^^^^

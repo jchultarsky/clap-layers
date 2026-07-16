@@ -1,0 +1,6 @@
+error: unknown `layered` option `no_envv`
+         help: supported options on a field are: `no_cli`, `no_file`, `no_env`
+ --> tests/ui/unknown_field_option.rs:9:15
+  |
+9 |     #[layered(no_envv)]
+  |               ^^^^^^^

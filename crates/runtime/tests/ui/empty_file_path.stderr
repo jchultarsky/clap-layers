@@ -1,0 +1,6 @@
+error: `file` must not be empty
+         help: an empty path names no file, so the layer would silently never apply. Remove `file` to disable the layer deliberately
+ --> tests/ui/empty_file_path.rs:5:18
+  |
+5 | #[layered(file = "")]
+  |                  ^^

@@ -1,0 +1,6 @@
+error: `env_prefix` contains `-`, which is not valid in an environment variable name
+         help: use ASCII letters, digits and underscores, as in `#[layered(env_prefix = "MY_APP")]`
+ --> tests/ui/invalid_env_prefix.rs:7:24
+  |
+7 | #[layered(env_prefix = "my-app")]
+  |                        ^^^^^^^^

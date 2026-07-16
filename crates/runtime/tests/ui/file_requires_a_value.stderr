@@ -1,0 +1,6 @@
+error: `file` requires a value
+         help: write `#[layered(file = "myapp.toml")]`
+ --> tests/ui/file_requires_a_value.rs:5:11
+  |
+5 | #[layered(file)]
+  |           ^^^^

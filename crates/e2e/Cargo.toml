@@ -1,0 +1,24 @@
+[package]
+name = "clap-layers-e2e"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# A test fixture, never a published artifact.
+publish = false
+
+[lints]
+workspace = true
+
+# `layered()` reads the real process argv/env and exits the process on CLI
+# errors, so it can only be exercised by running a real binary. Cargo sets
+# CARGO_BIN_EXE_clap-layers-e2e for the integration test below and guarantees
+# this binary is built first, which guessing a path under target/ would not.
+[[bin]]
+name = "clap-layers-e2e"
+path = "src/main.rs"
+
+[dependencies]
+clap-layers = { path = "../runtime" }
+clap = { workspace = true, features = ["derive"] }

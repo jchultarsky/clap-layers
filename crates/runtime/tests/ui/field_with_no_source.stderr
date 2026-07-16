@@ -1,0 +1,8 @@
+error: this field has no configuration source
+         help: it is hidden from the command line, and the environment and file layers are unavailable to it, so it could only ever hold `Default::default()`
+  --> tests/ui/field_with_no_source.rs:8:5
+   |
+ 8 | /     #[layered(no_cli)]
+ 9 | |     #[arg(skip)]
+10 | |     unreachable: String,
+   | |_______________________^

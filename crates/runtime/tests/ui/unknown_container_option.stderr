@@ -1,0 +1,6 @@
+error: unknown `layered` option `fil`
+         help: supported options on a struct are: `file`, `env_prefix`
+ --> tests/ui/unknown_container_option.rs:5:11
+  |
+5 | #[layered(fil = "myapp.toml")]
+  |           ^^^
