@@ -9,7 +9,7 @@ uses — the `file = "examples/config.toml"` paths in the examples resolve from 
 | [`environment_vars.rs`](environment_vars.rs) | The environment layer and how variables are named |
 | [`config_file.rs`](config_file.rs) | The TOML file layer, and that a missing file is not an error |
 | [`precedence_demo.rs`](precedence_demo.rs) | All four layers, including a flag that equals the default |
-| [`sensitive_data.rs`](sensitive_data.rs) | `no_env` / `no_file`, keeping a password off every other layer |
+| [`sensitive_data.rs`](sensitive_data.rs) | `no_file`, keeping a credential out of the layer that gets committed |
 | [`dynamic_values.rs`](dynamic_values.rs) | `no_cli`, for fields that must never be a flag |
 | [`complete_example.rs`](complete_example.rs) | Everything together, with error reporting |
 

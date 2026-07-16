@@ -1,19 +1,27 @@
-//! Keeping secrets out of the environment and config file.
+//! Keeping a credential out of the config file.
 //!
-//! `#[layered(no_env, no_file)]` removes those two layers for a single field,
-//! so a password can only ever arrive from the command line. The other fields
-//! still layer normally.
+//! A config file is the layer most likely to end up in version control, so
+//! `#[layered(no_file)]` is the marker that matters for a secret: the field can
+//! still come from the environment — the usual channel for credentials — but a
+//! `db_password` key in `myapp.toml` can never populate it, even by accident.
+//!
+//! `#[layered(no_env, no_file)]` narrows a field to the command line alone.
+//! Reach for that sparingly: a command-line argument is visible in `ps` output
+//! to every other user on the machine, and is recorded in shell history, so it
+//! is usually a *worse* place for a secret than the environment.
 //!
 //! ## Running this example
 //!
 //! ```bash
-//! # The password must come from the CLI.
-//! cargo run --example sensitive_data -- --db-password "secret123"
+//! # The usual channel: read the secret from the environment, without ever
+//! # writing its value into a command line or a file.
+//! MYAPP_DB_PASSWORD="$DB_PASSWORD" cargo run --example sensitive_data
 //!
-//! # MYAPP_DB_USER is honoured; MYAPP_DB_PASSWORD is ignored, because
-//! # `db_password` opts out of the environment layer.
-//! MYAPP_DB_USER=readonly MYAPP_DB_PASSWORD=exposed \
-//!   cargo run --example sensitive_data -- --db-password "secret123"
+//! # db_user is read from examples/config.toml as normal...
+//! MYAPP_DB_USER=readonly cargo run --example sensitive_data
+//!
+//! # ...but a `db_password` key in that file is ignored, because the field
+//! # opts out of the file layer.
 //! ```
 
 use clap::Parser;
@@ -22,16 +30,17 @@ use clap_layers::Layered;
 #[derive(Parser, Layered, Debug)]
 #[layered(file = "examples/config.toml", env_prefix = "MYAPP")]
 struct Config {
-    /// Database username; may come from any layer.
+    /// Database username; may come from any layer, config file included.
     #[arg(long, default_value_t = String::from("admin"))]
     db_user: String,
 
     /// Database password.
     ///
-    /// `no_env` and `no_file` mean neither `MYAPP_DB_PASSWORD` nor a
-    /// `db_password` key in the config file can populate this field.
-    #[layered(no_env, no_file)]
-    #[arg(long)]
+    /// `no_file` removes the config-file layer for this field only. It may
+    /// still be set by `MYAPP_DB_PASSWORD`, or by `--db-password` with the
+    /// caveat above.
+    #[layered(no_file)]
+    #[arg(long, default_value_t = String::new())]
     db_password: String,
 }
 
@@ -44,9 +53,15 @@ fn main() {
     });
 
     println!("DB user:     {}", cfg.db_user);
-    // Never print a secret in full.
+
+    // Never print a secret, not even partially: a prefix still leaks into logs.
+    // Report only whether one arrived, which is what a diagnostic needs.
     println!(
-        "DB password: {}***",
-        &cfg.db_password[..1.min(cfg.db_password.len())]
+        "DB password: {}",
+        if cfg.db_password.is_empty() {
+            "<not set>"
+        } else {
+            "<set>"
+        }
     );
 }
