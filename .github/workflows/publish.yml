@@ -10,6 +10,10 @@ on:
 
 permissions:
   contents: read
+  # Lets the job mint a GitHub OIDC token, which crates.io exchanges for a
+  # short-lived publish token. This is what removes the need to store a
+  # registry token at all.
+  id-token: write
 
 env:
   CARGO_TERM_COLOR: always
@@ -19,10 +23,8 @@ jobs:
   publish:
     name: Publish to crates.io
     runs-on: ubuntu-latest
-    # Requires a `crates-io` environment holding CARGO_REGISTRY_TOKEN. Putting
-    # the token in an environment rather than a bare repository secret means it
-    # is reachable only from this job, and the environment can require a manual
-    # approval before the irreversible step runs.
+    # No secret to hold, so the environment exists only as a gate: add a
+    # required reviewer to it and the irreversible step waits for a human.
     environment: crates-io
     steps:
       - uses: actions/checkout@v7
@@ -66,11 +68,23 @@ jobs:
           fi
           echo "changelog documents ${tag}"
 
+      # Trusted publishing: crates.io verifies, via GitHub's OIDC provider, that
+      # this really is the workflow it was told to trust, and returns a token
+      # that lasts ~30 minutes and is revoked when the job ends. Nothing
+      # long-lived is stored, so there is no secret to rotate or leak.
+      #
+      # Each crate trusts its publisher independently, so both clap-layers and
+      # clap-layers-proc must be configured on crates.io — the runtime crate
+      # alone is not enough.
+      - name: Authenticate with crates.io
+        id: auth
+        uses: rust-lang/crates-io-auth-action@v1
+
       # Publishes clap-layers-proc first, then clap-layers, waiting for the
       # index between them: the runtime crate depends on an exact version of the
       # macro crate, so the order is not interchangeable. --workspace handles
       # the ordering and skips members marked `publish = false`.
       - name: cargo publish
         env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish --workspace
